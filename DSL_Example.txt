@@ -1,0 +1,82 @@
+workspace {
+
+  model {
+    user = person "Usuário" "Uma pessoa que utiliza a wallet digital para pagamentos."
+    store = person "Loja" "Estabelecimento que aceita pagamentos via API da wallet."
+    paymentService = softwareSystem "Serviço de Pagamento" "Serviço de pagamento externo como cartão de crédito ou PIX." "External Software System"
+    wallet = softwareSystem "Wallet Digital" "Permite aos usuários fazer pagamentos e adicionar créditos." {
+      mobileApp = container "Aplicativo Móvel/Website" "Interface para gerenciamento de conta e pagamentos." "Mobile App/Web" "Mobile App/Web"
+      api = container "API da Wallet" "Permite integração com lojas." "REST API"
+      backendService = container "Serviço de Backend" "Processa transações, gerencia contas." "Código-fonte" {
+        authenticationComponent = component "Componente de Autenticação" "Gerencia login e segurança das contas." "Spring Security"
+        transactionManagementComponent = component "Componente de Gerenciamento de Transações" "Processa pagamentos e adição de créditos." "Java"
+        paymentIntegrationComponent = component "Componente de Integração com Serviços de Pagamento" "Comunica com serviços de pagamento." "REST Client"
+        storeApiComponent = component "Componente de API para Lojas" "API para lojas realizarem transações." "REST API"
+      }
+      database = container "Banco de Dados" "Armazena informações de usuário, transações, créditos." "SQL Database" "SQL Database"
+      apiPaymentService = container "API de pagamentos" "Permite a adição de crédito nas carteiras do sistema" "External Container"
+    }
+    
+    user -> wallet "Usa"
+    store -> wallet "Integra com"
+    wallet -> paymentService "Interage com"
+    user -> mobileApp "Usa"
+    store -> api "Usa"
+    mobileApp -> backendService "Envia requisições para" "HTTP"
+    api -> backendService "Envia requisições para" "HTTP"
+    backendService -> database "Lê/escreve" "ORM"
+    backendService -> apiPaymentService "Envia requisições para" "HTTP"
+    mobileApp -> authenticationComponent "Autentica através de"
+    transactionManagementComponent -> database "Registra transações em"
+    paymentIntegrationComponent -> paymentService "Integra com"
+    api -> storeApiComponent "Encaminha requisições para"
+  }
+
+  views {
+    systemContext wallet {
+      include *
+      autoLayout
+    }
+    container wallet {
+      include *
+      autoLayout
+    }
+    component backendService {
+      include *
+      autoLayout
+    }
+    
+    styles {
+        element "Person" {
+            background #08427b
+            color #ffffff
+            fontSize 22
+            shape Person
+        }
+        element "Software System" {
+            background #1168bd
+            color #ffffff
+        }
+        element "External Software System" {
+            background #999999
+            color #ffffff
+        }
+        
+        element "Container" {
+            background #438dd5
+            color #ffffff
+        }
+        element "Mobile App/Web" {
+            shape MobileDeviceLandscape
+        }
+        
+        element "SQL Database" {
+            shape Cylinder
+        }
+        element "Component" {
+            background #85bbf0
+            color #000000
+        }
+    }
+  }
+}
